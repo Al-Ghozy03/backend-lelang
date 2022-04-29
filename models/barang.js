@@ -21,11 +21,12 @@ module.exports = (sequelize, DataTypes) => {
     jam: DataTypes.TIME,
     hargaAwal: DataTypes.INTEGER,
     deskripsi: DataTypes.STRING,
-    kategori: DataTypes.STRING,
+    kategori: DataTypes.ENUM("gaming","komputer","elektronik","transportasi","rumah","perhiasan","seni"),
     fotoBarang: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'barang',
+    // freezeTableName:true
   });
   return barang;
 };

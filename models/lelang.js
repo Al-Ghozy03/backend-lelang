@@ -27,6 +27,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'lelang',
+    // freezeTableName:true
+
   });
   return lelang;
 };

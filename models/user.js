@@ -14,10 +14,6 @@ module.exports = (sequelize, DataTypes) => {
         as: "history",
         foreignKey: "idUser",
       });
-      user.hasMany(models.token_user, {
-        as: "token_user",
-        foreignKey: "userId",
-      });
     }
   }
   user.init(
@@ -26,12 +22,12 @@ module.exports = (sequelize, DataTypes) => {
       email: DataTypes.STRING,
       username: DataTypes.STRING,
       password: DataTypes.STRING,
-      isVerified: DataTypes.BOOLEAN,
       photoProfile: DataTypes.STRING,
     },
     {
       sequelize,
       modelName: "user",
+      // freezeTableName: true,
     }
   );
   return user;

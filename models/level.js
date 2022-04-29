@@ -19,6 +19,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'level',
+    // freezeTableName:true
+
   });
   return level;
 };

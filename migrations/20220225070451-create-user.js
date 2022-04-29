@@ -21,10 +21,6 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
       },
-      isVerified: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-      },
       photoProfile: {
         type: Sequelize.STRING,
         allowNull: true,

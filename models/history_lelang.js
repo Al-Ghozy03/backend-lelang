@@ -24,6 +24,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'history_lelang',
+    // freezeTableName:true
+
   });
   return history_lelang;
 };

@@ -5,6 +5,15 @@ const barang = require("../models").barang;
 const lelangmodel = require("../models").lelang;
 const laporanmodel = require("../models").laporan;
 
+async function getNol(req, res) {
+  try {
+    const data = await barang.findAndCountAll({ where: { hargaAwal: "0" } });
+    res.json({ data });
+  } catch (er) {
+    console.log(er);
+  }
+}
+
 async function generateReport(req, res) {
   try {
     const { userId, namaBarang, hargaAkhir } = req.body;
@@ -231,5 +240,6 @@ module.exports = {
   deleteBarang,
   today,
   getByCategories,
-  generateReport
+  generateReport,
+  getNol,
 };

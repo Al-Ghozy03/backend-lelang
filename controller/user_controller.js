@@ -3,9 +3,52 @@ const officer = require("../models").officer;
 const bcrypt = require("bcrypt");
 const dotenv = require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const crypto = require("crypto");
-const { sendEmail } = require("../mail/mail");
-const tokenUser = require("../models").token_user;
+const jwtDecode = require("jwt-decode");
+
+async function updateProfile(req, res) {
+  try {
+    const data = await usermodel.findOne({
+      where: { id: jwtDecode(req.headers.authorization).id },
+    });
+    let { name, username, password, photoProfile } = req.body;
+    let url = `${req.protocol}://${req.get("host")}/${req?.file?.filename}`;
+    photoProfile = url;
+    if (req?.file?.filename === undefined) {
+      photoProfile = data.photoProfile;
+    } else {
+      photoProfile = url;
+    }
+    if (password !== undefined) {
+      password = await bcrypt.hashSync(password, 10);
+    }
+
+    await usermodel.update(
+      {
+        name: name,
+        password: password,
+        username: username,
+        photoProfile: photoProfile,
+      },
+      { where: { id: jwtDecode(req.headers.authorization).id } }
+    );
+    res.json({ message: "berhasil" });
+  } catch (er) {
+    console.log(er);
+    return res.status(442).json(er);
+  }
+}
+
+async function getProfile(req, res) {
+  try {
+    const data = await usermodel.findOne({
+      where: { id: jwtDecode(req.headers.authorization).id },
+    });
+    res.json({ data });
+  } catch (er) {
+    console.log(er);
+    return res.status(442).json({ er });
+  }
+}
 
 async function deleteUser(req, res) {
   try {
@@ -32,29 +75,6 @@ async function getData(req, res) {
   }
 }
 
-async function verifikasi(req, res) {
-  try {
-    let { id } = req.params;
-    const token = await tokenUser.findOne({ where: { userId: id } });
-    if (!token)
-      return res.status(403).json({
-        status: "gagal",
-        message: "user tidak ada",
-      });
-
-    if (req.body.token !== token.token) {
-      return res.status(403).json({
-        status: "gagal",
-        message: "token salah",
-      });
-    } else {
-      await usermodel.update({ isVerified: true }, { where: { id: id } });
-      res.status(200).json({
-        status: "berhasil",
-      });
-    }
-  } catch (er) {}
-}
 async function login(req, res) {
   try {
     const { email, password } = req.body;
@@ -69,23 +89,6 @@ async function login(req, res) {
       const verfiy = bcrypt.compareSync(password, user.password);
 
       if (verfiy) {
-        if (!user.isVerified) {
-          const token = jwt.sign(
-            {
-              id: user.id,
-              email: user.email,
-              role: "user",
-            },
-            process.env.JWT_SIGN,
-            {
-              expiresIn: "1d",
-            }
-          );
-          return res
-            .status(401)
-            .json({ message: "email belum diverifikasi", token: token });
-        }
-
         const token = jwt.sign(
           {
             id: user.id,
@@ -122,6 +125,7 @@ async function register(req, res) {
       let url = `${req.protocol}://${req.get("host")}/${req.file.filename}`;
       body.photoProfile = url;
     }
+
     const userM = await usermodel.findOne({ where: { email: body.email } });
     const officerM = await officer.findOne({ where: { email: body.email } });
 
@@ -143,20 +147,6 @@ async function register(req, res) {
         expiresIn: "1d",
       }
     );
-
-    let code = crypto.randomBytes(7).toString("hex");
-    const mail = await sendEmail(body.email, "Verifikasi email", code);
-
-    if (mail === "error")
-      return res.status(422).json({
-        status: "gagal",
-        message: "email tidak terkirim",
-      });
-
-    await tokenUser.create({
-      userId: user.id,
-      token: code,
-    });
     res.json({
       status: "berhasil",
       data: user,
@@ -171,4 +161,11 @@ async function register(req, res) {
   }
 }
 
-module.exports = { register, login, verifikasi, getData,deleteUser };
+module.exports = {
+  register,
+  login,
+  getData,
+  deleteUser,
+  getProfile,
+  updateProfile,
+};
