@@ -10,6 +10,7 @@ const {
   getByCategories,
   generateReport,
   getNol,
+  getOther,
 } = require("../controller/barang_controller");
 const { jwtMiddle } = require("../middleware/jwtMiddleware");
 const { postFotoBarang } = require("../middleware/barangUpload");
@@ -18,6 +19,7 @@ const router = express();
 router.use(jwtMiddle);
 router.post("/post", postFotoBarang, postBarang);
 router.get("/all", getAll);
+router.get("/other",getOther)
 router.get("/nol", getNol);
 router.get("/search", searchBarang);
 router.get("/today", today);

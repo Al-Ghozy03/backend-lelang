@@ -39,27 +39,12 @@ async function history(req, res) {
   }
 }
 
-async function getListPenawar(req, res) {
-  try {
-    const { id } = req.params;
-    const data = await sequelize.query(
-      `select a.id,a.idBarang,a.hargaAkhir,a.idUser,a.idOfficer,a.status,c.name from lelangs as a join history_lelangs as b on (a.idUser = b.idUser) join users as c on (b.idUser = c.id) where a.id = ${id}`,
-      {
-        type: QueryTypes.SELECT,
-        raw: true,
-      }
-    );
-    res.status(200).json({ message: "berhasil", data: data });
-  } catch (er) {
-    console.log(er);
-  }
-}
 
 async function scheduleDetail(req, res) {
   try {
     const { id } = req.params;
     const data = await sequelize.query(
-      `select barangs.id,barangs.namaBarang,barangs.tanggal,barangs.hargaAwal,barangs.jam,barangs.deskripsi,barangs.fotoBarang,lelangs.idBarang,lelangs.hargaAkhir,lelangs.idUser,lelangs.idOfficer,lelangs.status,officers.username from barangs join lelangs on(barangs.id = lelangs.idBarang) join officers on (lelangs.idOfficer = officers.id) where lelangs.idBarang = ${id}`,
+      `select barangs.id,barangs.namaBarang,barangs.tanggal,barangs.hargaAwal,barangs.jam,barangs.deskripsi,barangs.kategori,barangs.fotoBarang,lelangs.idBarang,lelangs.hargaAkhir,lelangs.idUser,lelangs.idOfficer,lelangs.status,officers.username from barangs join lelangs on(barangs.id = lelangs.idBarang) join officers on (lelangs.idOfficer = officers.id) where lelangs.idBarang = ${id}`,
       { type: QueryTypes.SELECT, raw: true }
     );
     res.json({ message: "berhasil", data: data });
@@ -148,7 +133,6 @@ module.exports = {
   penawaran,
   scheduleDetail,
   schedule,
-  getListPenawar,
   history,
   generateLaporan,
 };

@@ -1,4 +1,5 @@
 const { body } = require("express-validator");
+const { default: jwtDecode } = require("jwt-decode");
 const { Op } = require("sequelize");
 
 const barang = require("../models").barang;
@@ -44,13 +45,39 @@ async function today(req, res) {
   try {
     let date = new Date();
     let today = `${date.getFullYear()}-${
-      date.getMonth() + 1
-    }-${date.getDate()}`;
+      date.getMonth() + 1 === 1 ||
+      date.getMonth() + 1 === 2 ||
+      date.getMonth() + 1 === 3 ||
+      date.getMonth() + 1 === 4 ||
+      date.getMonth() + 1 === 5 ||
+      date.getMonth() + 1 === 6 ||
+      date.getMonth() + 1 === 7 ||
+      date.getMonth() + 1 === 8 ||
+      date.getMonth() + 1 === 9
+        ? `0${date.getMonth() + 1}`
+        : date.getMonth() + 1
+    }-${
+      date.getDate() === 1 ||
+      date.getDate() === 2 ||
+      date.getDate() === 3 ||
+      date.getDate() === 4 ||
+      date.getDate() === 5 ||
+      date.getDate() === 6 ||
+      date.getDate() === 7 ||
+      date.getDate() === 8 ||
+      date.getDate() === 9
+        ? `0${date.getDate()}`
+        : date.getDate()
+    }`;
+
     const data = await barang.findAll({
-      where: { tanggal: { [Op.like]: today } },
+      where: { tanggal: { [Op.substring]: today } },
     });
     res.json({ data: data });
-  } catch (er) {}
+  } catch (er) {
+    console.log(er);
+    return res.status(442).json({ er });
+  }
 }
 
 async function deleteBarang(req, res) {
@@ -71,7 +98,7 @@ async function updateBarang(req, res) {
     if (!data) return res.status(442).json({ message: "data tidak ada" });
 
     let url = `${req.protocol}://${req.get("host")}/${req?.file?.filename}`;
-    if (url === "http://localhost:8000/undefined") {
+    if (url === `${req.protocol}://${req.get("host")}/undefined`) {
       body.fotoBarang = data.fotoBarang;
     } else {
       body.fotoBarang = url;
@@ -210,7 +237,7 @@ async function postBarang(req, res) {
   let body = req.body;
   try {
     const { authorization } = req.headers;
-    let getId = JSON.parse(atob(authorization.split(".")[1]));
+    let getId = jwtDecode(authorization);
     let url = `${req.protocol}://${req.get("host")}/${req.file.filename}`;
     body.fotoBarang = url;
     const data = await barang.create(body);
@@ -231,6 +258,18 @@ async function postBarang(req, res) {
   }
 }
 
+async function getOther(req, res) {
+  try {
+    const data = await barang.findAll({
+      where: { hargaAwal: { [Op.ne]: 0 } },
+      limit: 2,
+    });
+    res.json({ data });
+  } catch (er) {
+    return res.status(442).json({ er });
+  }
+}
+
 module.exports = {
   postBarang,
   getAll,
@@ -242,4 +281,5 @@ module.exports = {
   getByCategories,
   generateReport,
   getNol,
+  getOther,
 };

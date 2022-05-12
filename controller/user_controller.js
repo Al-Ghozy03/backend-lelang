@@ -96,9 +96,6 @@ async function login(req, res) {
             role: "user",
           },
           process.env.JWT_SIGN,
-          {
-            expiresIn: "1d",
-          }
         );
         res.status(200).json({
           message: "berhasil",
@@ -143,9 +140,6 @@ async function register(req, res) {
         role: "user",
       },
       process.env.JWT_SIGN,
-      {
-        expiresIn: "1d",
-      }
     );
     res.json({
       status: "berhasil",
